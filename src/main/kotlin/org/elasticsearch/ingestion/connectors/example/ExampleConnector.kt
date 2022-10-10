@@ -2,7 +2,7 @@ package org.elasticsearch.ingestion.connectors.example
 
 import org.elasticsearch.ingestion.connectors.base.BaseConnector
 import org.elasticsearch.ingestion.connectors.base.ConfigurableField
-import org.elasticsearch.ingestion.data.ConnectorDocument
+import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.springframework.stereotype.Component

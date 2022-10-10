@@ -1,10 +1,10 @@
 package org.elasticsearch.ingestion.connectors.base
 
-import org.elasticsearch.ingestion.exception.ConnectorException
-import org.elasticsearch.ingestion.exception.HealthCheckException
-import org.elasticsearch.ingestion.data.ConnectorDocument
 import kotlinx.coroutines.flow.Flow
 import mu.KLogging
+import org.elasticsearch.ingestion.connectors.ConnectorException
+import org.elasticsearch.ingestion.connectors.HealthCheckException
+import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
 
 // we want this to have a type field later
 data class ConfigurableField(

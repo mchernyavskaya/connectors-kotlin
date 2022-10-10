@@ -1,4 +1,4 @@
-package org.elasticsearch.ingestion.data
+package org.elasticsearch.ingestion.connectors.data
 
 /**
  * Elastic document that a connector ingests

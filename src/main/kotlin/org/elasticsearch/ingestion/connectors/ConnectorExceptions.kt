@@ -1,4 +1,4 @@
-package org.elasticsearch.ingestion.exception
+package org.elasticsearch.ingestion.connectors
 
 class ConnectorException(message: String) : Exception(message) {
     constructor(message: String, cause: Throwable) : this(message) {

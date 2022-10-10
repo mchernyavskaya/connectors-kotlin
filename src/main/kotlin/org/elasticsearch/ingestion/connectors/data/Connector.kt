@@ -1,6 +1,6 @@
 @file:Suppress("EnumEntryName")
 
-package org.elasticsearch.ingestion.data
+package org.elasticsearch.ingestion.connectors.data
 
 import org.joda.time.DateTime
 import org.springframework.data.annotation.Id
