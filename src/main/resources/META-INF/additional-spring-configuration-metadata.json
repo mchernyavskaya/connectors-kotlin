@@ -1,0 +1,13 @@
+{
+  "properties": [
+    {
+      "name": "connector_id",
+      "type": "java.lang.String",
+      "description": "Description for connector_id."
+    },
+    {
+      "name": "service_type",
+      "type": "java.lang.String",
+      "description": "Description for service_type."
+    }
+  ] }

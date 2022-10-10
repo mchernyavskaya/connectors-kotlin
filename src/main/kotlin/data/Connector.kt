@@ -8,7 +8,10 @@ import org.springframework.data.elasticsearch.annotations.Document
 import org.springframework.data.elasticsearch.annotations.Field
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 
-interface ConnectorRepository : ElasticsearchRepository<Connector, String>
+interface ConnectorRepository : ElasticsearchRepository<Connector, String> {
+    fun findByNativeOrderByName(isNative: Boolean): List<Connector>
+}
+
 
 data class ConfigurationItem(
     private val label: String, private val value: String? = null
@@ -60,7 +63,9 @@ data class Connector(
     val serviceType: String? = null, // Optional, used for UI sugar
     var status: ConnectorStatus, // Enum, see below
     @Field("sync_now")
-    val syncNow: Boolean = false // Flag to signal user wants to initiate a sync
+    val syncNow: Boolean = false, // Flag to signal user wants to initiate a sync
+    @Field("is_native")
+    val native: Boolean = false // Flag to signal a native connector
 )
 
 

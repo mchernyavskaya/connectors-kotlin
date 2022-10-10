@@ -8,9 +8,7 @@ import data.ConnectorStatus
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
-import org.mockito.Mockito
 import org.mockito.Mockito.*
-import org.mockito.stubbing.OngoingStubbing
 import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
@@ -74,4 +72,11 @@ internal class ElasticConnectorServiceTest {
             assertEquals(errorMessage, value.error)
         }
     }
+
+    @Test
+    fun `when looking for connector packages, native flag is false`() {
+        service.findConnectorPackages()
+        verify(repo).findByNativeOrderByName(false)
+    }
+
 }

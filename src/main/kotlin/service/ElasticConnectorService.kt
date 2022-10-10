@@ -25,4 +25,8 @@ class ElasticConnectorService(private val repository: ConnectorRepository) {
         }
         repository.save(connector)
     }
+
+    fun findConnectorPackages(): List<Connector> {
+        return repository.findByNativeOrderByName(false)
+    }
 }
