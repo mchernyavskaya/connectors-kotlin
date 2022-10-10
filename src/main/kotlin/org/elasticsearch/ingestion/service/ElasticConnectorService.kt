@@ -1,8 +1,8 @@
-package service
+package org.elasticsearch.ingestion.service
 
-import data.Connector
-import data.ConnectorRepository
-import data.ConnectorStatus
+import org.elasticsearch.ingestion.data.Connector
+import org.elasticsearch.ingestion.data.ConnectorRepository
+import org.elasticsearch.ingestion.data.ConnectorStatus
 import org.springframework.stereotype.Service
 
 @Service

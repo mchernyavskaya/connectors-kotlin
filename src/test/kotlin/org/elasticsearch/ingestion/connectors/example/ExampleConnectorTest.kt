@@ -1,4 +1,4 @@
-package connectors.example
+package org.elasticsearch.ingestion.connectors.example
 
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList

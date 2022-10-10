@@ -1,4 +1,4 @@
-package app
+package org.elasticsearch.ingestion.app
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication

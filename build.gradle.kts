@@ -49,8 +49,8 @@ dependencies {
     testImplementation(kotlin("test"))
     // https://mvnrepository.com/artifact/org.mockito/mockito-core
     testImplementation("org.mockito:mockito-core:4.8.0")
-//    // https://mvnrepository.com/artifact/eu.codearte.catch-exception/catch-exception
-//    testImplementation("eu.codearte.catch-exception:catch-exception:2.0")
+    // https://mvnrepository.com/artifact/eu.codearte.catch-exception/catch-exception
+    testImplementation("eu.codearte.catch-exception:catch-exception:2.0")
     // https://mvnrepository.com/artifact/org.assertj/assertj-core
     testImplementation("org.assertj:assertj-core:3.23.1")
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-test

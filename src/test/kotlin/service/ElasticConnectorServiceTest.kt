@@ -2,9 +2,10 @@ package service
 
 import com.googlecode.catchexception.CatchException.catchException
 import com.googlecode.catchexception.CatchException.caughtException
-import data.Connector
-import data.ConnectorRepository
-import data.ConnectorStatus
+import org.elasticsearch.ingestion.data.Connector
+import org.elasticsearch.ingestion.data.ConnectorRepository
+import org.elasticsearch.ingestion.data.ConnectorStatus
+import org.elasticsearch.ingestion.service.ElasticConnectorService
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor

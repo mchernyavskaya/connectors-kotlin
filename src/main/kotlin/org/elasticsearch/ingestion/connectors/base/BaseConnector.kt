@@ -1,8 +1,8 @@
-package connectors.base
+package org.elasticsearch.ingestion.connectors.base
 
-import connectors.exception.ConnectorException
-import connectors.exception.HealthCheckException
-import data.ConnectorDocument
+import org.elasticsearch.ingestion.exception.ConnectorException
+import org.elasticsearch.ingestion.exception.HealthCheckException
+import org.elasticsearch.ingestion.data.ConnectorDocument
 import kotlinx.coroutines.flow.Flow
 import mu.KLogging
 
