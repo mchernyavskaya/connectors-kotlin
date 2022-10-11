@@ -4,19 +4,27 @@ import kotlinx.coroutines.flow.Flow
 import mu.KLogging
 import org.elasticsearch.ingestion.connectors.ConnectorException
 import org.elasticsearch.ingestion.connectors.HealthCheckException
+import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
 import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
 
 // we want this to have a type field later
 data class ConfigurableField(
     val label: String,
     val name: String,
-    val defaultValue: Any? = null
+    val defaultValue: Any? = null,
+    val currentValue: Any? = null
 ) {
     // if the label isn't specified, it defaults to field name
     constructor(name: String, defaultValue: Any? = null) : this(name, name, defaultValue.toString())
+
+    fun hasValue(): Boolean {
+        return currentValue != null || defaultValue != null
+    }
+
+    fun getValue(): Any? = currentValue ?: defaultValue
 }
 
-open class BaseConnector {
+abstract class Connector(val configuration: ConnectorConfig) {
     open fun displayName(): String {
         throw ConnectorException("Not implemented for this connector")
     }
@@ -32,7 +40,6 @@ open class BaseConnector {
     open fun fetchDocuments(): Flow<ConnectorDocument> {
         throw ConnectorException("Not implemented for this connector")
     }
-
 
     fun doHealthCheckAndRaise() {
         try {

@@ -1,5 +1,6 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
+val kotlinVersion = "1.7.20"
 
 plugins {
     val springBootVersion = "2.7.4"
@@ -37,6 +38,7 @@ dependencies {
     implementation("io.github.microutils:kotlin-logging-jvm:3.0.0")
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
+    implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-reactor
     runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
@@ -47,8 +49,8 @@ dependencies {
     testImplementation("org.testcontainers:elasticsearch")
     testImplementation("org.testcontainers:junit-jupiter")
     testImplementation(kotlin("test"))
-    // https://mvnrepository.com/artifact/org.mockito/mockito-core
-    testImplementation("org.mockito:mockito-core:4.8.0")
+    // https://mvnrepository.com/artifact/org.mockito.kotlin/mockito-kotlin
+    testImplementation("org.mockito.kotlin:mockito-kotlin:4.0.0")
     // https://mvnrepository.com/artifact/eu.codearte.catch-exception/catch-exception
     testImplementation("eu.codearte.catch-exception:catch-exception:2.0")
     // https://mvnrepository.com/artifact/org.assertj/assertj-core

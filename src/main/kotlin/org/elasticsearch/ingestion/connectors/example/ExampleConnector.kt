@@ -1,16 +1,15 @@
 package org.elasticsearch.ingestion.connectors.example
 
-import org.elasticsearch.ingestion.connectors.base.BaseConnector
-import org.elasticsearch.ingestion.connectors.base.ConfigurableField
-import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
-import org.springframework.stereotype.Component
+import org.elasticsearch.ingestion.connectors.base.ConfigurableField
+import org.elasticsearch.ingestion.connectors.base.Connector
+import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
+import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
 
-@Component
-class ExampleConnector : BaseConnector() {
+class ExampleConnector(configuration: ConnectorConfig) : Connector(configuration) {
     override fun displayName(): String {
-        return "Example Connector"
+        return "Example Kotlin Connector"
     }
 
     override fun configurableFields(): List<ConfigurableField> {
@@ -20,7 +19,7 @@ class ExampleConnector : BaseConnector() {
     }
 
     override fun serviceType(): String {
-        return "example"
+        return "exampleKotlin"
     }
 
     override fun fetchDocuments(): Flow<ConnectorDocument> {

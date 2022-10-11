@@ -1,17 +1,17 @@
 package org.elasticsearch.ingestion.connectors
 
-import org.elasticsearch.ingestion.connectors.data.Connector
+import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
 import org.elasticsearch.ingestion.connectors.data.ConnectorRepository
 import org.elasticsearch.ingestion.connectors.data.ConnectorStatus
 import org.springframework.stereotype.Service
 
 @Service
 class ElasticConnectorService(private val repository: ConnectorRepository) {
-    fun connectorConfiguration(id: String): Connector? {
+    fun connectorConfiguration(id: String): ConnectorConfig? {
         return repository.findById(id).orElse(null)
     }
 
-    fun updateConnectorStatus(id: String, status: ConnectorStatus, errorMessage: String? = null) {
+    fun updateConnectorStatus(id: String, status: ConnectorStatus, errorMessage: String? = null): ConnectorConfig {
         val connector = repository.findById(id).get()
         connector.status = status
         if (status == ConnectorStatus.error) {
@@ -23,10 +23,14 @@ class ElasticConnectorService(private val repository: ConnectorRepository) {
         } else {
             connector.error = null
         }
-        repository.save(connector)
+        return repository.save(connector)
     }
 
-    fun findConnectorPackages(): List<Connector> {
-        return repository.findByNativeOrderByName(false)
+    fun updateConnectorServiceType(id: String, serviceType: String): ConnectorConfig {
+        val connector = repository.findById(id).get()
+        connector.serviceType = serviceType
+        return repository.save(connector)
     }
+
+    fun findConnectorConfig(connectorId: String): ConnectorConfig? = repository.findById(connectorId).orElse(null)
 }

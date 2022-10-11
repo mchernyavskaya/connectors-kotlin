@@ -8,8 +8,8 @@ import org.springframework.data.elasticsearch.annotations.Document
 import org.springframework.data.elasticsearch.annotations.Field
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 
-interface ConnectorRepository : ElasticsearchRepository<Connector, String> {
-    fun findByNativeOrderByName(isNative: Boolean): List<Connector>
+interface ConnectorRepository : ElasticsearchRepository<ConnectorConfig, String> {
+    fun findByNativeOrderByName(isNative: Boolean): List<ConnectorConfig>
 }
 
 
@@ -33,7 +33,7 @@ data class SchedulingConfig(
 )
 
 @Document(indexName = ".elastic-connectors")
-data class Connector(
+data class ConnectorConfig(
     @Id
     val id: String? = null, // for new records it is empty
     @Field("api_key_id")
@@ -60,7 +60,7 @@ data class Connector(
     val pipeline: PipelineConfig? = null,
     val scheduling: SchedulingConfig? = null,
     @Field("service_type")
-    val serviceType: String? = null, // Optional, used for UI sugar
+    var serviceType: String? = null, // Used to map to the correct service
     var status: ConnectorStatus, // Enum, see below
     @Field("sync_now")
     val syncNow: Boolean = false, // Flag to signal user wants to initiate a sync

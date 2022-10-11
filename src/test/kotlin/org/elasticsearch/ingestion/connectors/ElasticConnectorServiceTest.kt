@@ -2,7 +2,7 @@ package org.elasticsearch.ingestion.connectors
 
 import com.googlecode.catchexception.CatchException.catchException
 import com.googlecode.catchexception.CatchException.caughtException
-import org.elasticsearch.ingestion.connectors.data.Connector
+import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
 import org.elasticsearch.ingestion.connectors.data.ConnectorRepository
 import org.elasticsearch.ingestion.connectors.data.ConnectorStatus
 import org.junit.jupiter.api.BeforeEach
@@ -17,7 +17,7 @@ internal class ElasticConnectorServiceTest {
     private val repo = mock(ConnectorRepository::class.java)
     private val service = ElasticConnectorService(repo)
     private val connectorId = "someId"
-    private val mockConnector = Connector(
+    private val mockConnectorConfig = ConnectorConfig(
         id = connectorId,
         status = ConnectorStatus.created,
         name = "mockConnector",
@@ -26,7 +26,7 @@ internal class ElasticConnectorServiceTest {
 
     @BeforeEach
     internal fun setUp() {
-        `when`(repo.findById(connectorId)).thenReturn(Optional.of(mockConnector))
+        `when`(repo.findById(connectorId)).thenReturn(Optional.of(mockConnectorConfig))
     }
 
     @Test
@@ -47,7 +47,7 @@ internal class ElasticConnectorServiceTest {
     fun `when status is good, error is cleared`() {
         val status = ConnectorStatus.connected
         service.updateConnectorStatus(connectorId, status)
-        ArgumentCaptor.forClass(Connector::class.java).apply {
+        ArgumentCaptor.forClass(ConnectorConfig::class.java).apply {
             verify(repo).save(capture())
             assertEquals(status, value.status)
             assertNull(value.error)
@@ -65,7 +65,7 @@ internal class ElasticConnectorServiceTest {
     fun `when status is error and message is provided, error is updated`() {
         val status = ConnectorStatus.error
         val errorMessage = "ConnectorStatus.error"
-        ArgumentCaptor.forClass(Connector::class.java).apply {
+        ArgumentCaptor.forClass(ConnectorConfig::class.java).apply {
             service.updateConnectorStatus(connectorId, status, errorMessage)
             verify(repo).save(capture())
             assertEquals(status, value.status)
@@ -74,9 +74,9 @@ internal class ElasticConnectorServiceTest {
     }
 
     @Test
-    fun `when looking for connector packages, native flag is false`() {
-        service.findConnectorPackages()
-        verify(repo).findByNativeOrderByName(false)
+    fun `when looking for connector package, id is passed`() {
+        service.findConnectorConfig(connectorId)
+        verify(repo).findById(eq(connectorId))
     }
 
 }

@@ -3,16 +3,20 @@ package org.elasticsearch.ingestion.connectors.example
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
+import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
+import org.mockito.kotlin.mock
+import kotlin.test.assertEquals
 
 @ExperimentalCoroutinesApi
 internal class ExampleConnectorTest {
-    private val exampleConnector: ExampleConnector = ExampleConnector()
+    private val config = mock<ConnectorConfig>()
+    private val exampleConnector: ExampleConnector = ExampleConnector(config)
 
     @Test
     fun displayName() {
-        assert(exampleConnector.displayName() == "Example Connector")
+        assertEquals("Example Kotlin Connector", exampleConnector.displayName())
     }
 
     @Test
@@ -24,7 +28,7 @@ internal class ExampleConnectorTest {
 
     @Test
     fun serviceType() {
-        assert(exampleConnector.serviceType() == "example")
+        assertEquals("exampleKotlin", exampleConnector.serviceType())
     }
 
     @Test
