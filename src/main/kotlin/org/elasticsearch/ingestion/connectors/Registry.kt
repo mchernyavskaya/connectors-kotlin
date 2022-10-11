@@ -1,4 +1,4 @@
-package org.elasticsearch.ingestion
+package org.elasticsearch.ingestion.connectors
 
 import org.elasticsearch.ingestion.connectors.base.Connector
 import org.elasticsearch.ingestion.connectors.example.ExampleConnector

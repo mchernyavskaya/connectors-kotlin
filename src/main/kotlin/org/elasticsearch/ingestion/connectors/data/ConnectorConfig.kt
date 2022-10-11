@@ -8,10 +8,7 @@ import org.springframework.data.elasticsearch.annotations.Document
 import org.springframework.data.elasticsearch.annotations.Field
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 
-interface ConnectorRepository : ElasticsearchRepository<ConnectorConfig, String> {
-    fun findByNativeOrderByName(isNative: Boolean): List<ConnectorConfig>
-}
-
+interface ConnectorRepository : ElasticsearchRepository<ConnectorConfig, String>
 
 data class ConfigurationItem(
     private val label: String, private val value: String? = null

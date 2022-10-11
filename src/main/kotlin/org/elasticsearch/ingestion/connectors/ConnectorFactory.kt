@@ -1,6 +1,5 @@
 package org.elasticsearch.ingestion.connectors
 
-import org.elasticsearch.ingestion.Registry
 import org.elasticsearch.ingestion.connectors.base.Connector
 import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
 import org.springframework.stereotype.Component

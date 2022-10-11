@@ -39,10 +39,12 @@ dependencies {
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-core
     implementation("org.jetbrains.kotlinx:kotlinx-coroutines-core:1.6.4")
     implementation("org.jetbrains.kotlin:kotlin-reflect:${kotlinVersion}")
+    implementation("co.elastic.clients:elasticsearch-java:8.4.3")
+    implementation("com.fasterxml.jackson.core:jackson-databind:2.13.4")
+    implementation("jakarta.json:jakarta.json-api:2.1.1")
 
     // https://mvnrepository.com/artifact/org.jetbrains.kotlinx/kotlinx-coroutines-reactor
     runtimeOnly("org.jetbrains.kotlinx:kotlinx-coroutines-reactor:1.6.4")
-
 
     annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
@@ -59,6 +61,8 @@ dependencies {
     testImplementation("org.jetbrains.kotlinx:kotlinx-coroutines-test:1.6.4")
     // https://mvnrepository.com/artifact/org.amshove.kluent/kluent
     testImplementation("org.amshove.kluent:kluent:1.69")
+    // https://mvnrepository.com/artifact/io.mockk/mockk
+    testImplementation("io.mockk:mockk:1.13.2")
 }
 
 dependencyManagement {

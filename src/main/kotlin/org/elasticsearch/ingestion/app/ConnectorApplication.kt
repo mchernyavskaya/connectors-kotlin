@@ -15,7 +15,10 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
 @SpringBootApplication
 @ComponentScan(basePackages = ["org.elasticsearch.ingestion"])
 @EnableElasticsearchRepositories(basePackages = ["org.elasticsearch.ingestion"])
-@EnableConfigurationProperties(ConnectorProperties::class)
+@EnableConfigurationProperties(
+    ConnectorProperties::class,
+    ElasticClientProperties::class
+)
 class ConnectorApplication(
     val service: ElasticConnectorService,
     val factory: ConnectorFactory,

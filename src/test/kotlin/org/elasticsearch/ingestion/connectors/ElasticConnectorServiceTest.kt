@@ -2,6 +2,7 @@ package org.elasticsearch.ingestion.connectors
 
 import com.googlecode.catchexception.CatchException.catchException
 import com.googlecode.catchexception.CatchException.caughtException
+import io.mockk.mockk
 import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
 import org.elasticsearch.ingestion.connectors.data.ConnectorRepository
 import org.elasticsearch.ingestion.connectors.data.ConnectorStatus
@@ -17,16 +18,18 @@ internal class ElasticConnectorServiceTest {
     private val repo = mock(ConnectorRepository::class.java)
     private val service = ElasticConnectorService(repo)
     private val connectorId = "someId"
-    private val mockConnectorConfig = ConnectorConfig(
+    private val initialConnectorConfig = ConnectorConfig(
         id = connectorId,
         status = ConnectorStatus.created,
         name = "mockConnector",
         indexName = "mockConnectorIndex"
     )
+    private val mockConnectorConfig = mockk<ConnectorConfig>()
 
     @BeforeEach
     internal fun setUp() {
-        `when`(repo.findById(connectorId)).thenReturn(Optional.of(mockConnectorConfig))
+        `when`(repo.findById(connectorId)).thenReturn(Optional.of(initialConnectorConfig))
+        `when`(repo.save(any())).thenReturn(mockConnectorConfig)
     }
 
     @Test

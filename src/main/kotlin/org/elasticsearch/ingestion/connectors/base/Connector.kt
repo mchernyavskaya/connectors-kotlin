@@ -11,20 +11,10 @@ import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
 data class ConfigurableField(
     val label: String,
     val name: String,
-    val defaultValue: Any? = null,
-    val currentValue: Any? = null
-) {
-    // if the label isn't specified, it defaults to field name
-    constructor(name: String, defaultValue: Any? = null) : this(name, name, defaultValue.toString())
+    val defaultValue: Any? = null
+)
 
-    fun hasValue(): Boolean {
-        return currentValue != null || defaultValue != null
-    }
-
-    fun getValue(): Any? = currentValue ?: defaultValue
-}
-
-abstract class Connector(val configuration: ConnectorConfig) {
+abstract class Connector(private val configuration: ConnectorConfig) {
     open fun displayName(): String {
         throw ConnectorException("Not implemented for this connector")
     }
@@ -40,6 +30,8 @@ abstract class Connector(val configuration: ConnectorConfig) {
     open fun fetchDocuments(): Flow<ConnectorDocument> {
         throw ConnectorException("Not implemented for this connector")
     }
+
+    fun id() = configuration.id
 
     fun doHealthCheckAndRaise() {
         try {
