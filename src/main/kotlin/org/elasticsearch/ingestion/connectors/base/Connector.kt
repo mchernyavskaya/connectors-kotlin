@@ -6,6 +6,10 @@ import org.elasticsearch.ingestion.connectors.ConnectorException
 import org.elasticsearch.ingestion.connectors.HealthCheckException
 import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
 import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
+import org.elasticsearch.ingestion.connectors.data.ConnectorStatus
+import org.joda.time.DateTime
+import org.quartz.CronExpression
+import java.util.*
 
 // we want this to have a type field later
 data class ConfigurableField(
@@ -32,6 +36,24 @@ abstract class Connector(private val configuration: ConnectorConfig) {
     }
 
     fun id() = configuration.id
+
+    fun shouldSync(): Boolean {
+        if (configuration.isSyncing() || !configuration.isSyncEnabled()) {
+            return false
+        }
+        if (configuration.syncNow) {
+            return true
+        }
+        val exp = CronExpression(configuration.scheduling?.interval)
+        val past = DateTime.now().minusDays(1).toDate()
+        val timeAfter = if (configuration.lastSynced == null) past else DateTime(configuration.lastSynced).toDate()
+        return exp.getNextValidTimeAfter(timeAfter).before(Date())
+    }
+
+    fun shouldConfigure(): Boolean {
+        // TODO make this on par with connectors-ruby
+        return configuration.status == ConnectorStatus.created
+    }
 
     fun doHealthCheckAndRaise() {
         try {

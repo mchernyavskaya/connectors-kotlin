@@ -2,32 +2,36 @@
 
 package org.elasticsearch.ingestion.connectors.data
 
-import org.joda.time.DateTime
 import org.springframework.data.annotation.Id
 import org.springframework.data.elasticsearch.annotations.Document
 import org.springframework.data.elasticsearch.annotations.Field
+import org.springframework.data.elasticsearch.annotations.FieldType
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
+import java.util.*
 
 interface ConnectorRepository : ElasticsearchRepository<ConnectorConfig, String>
 
 data class ConfigurationItem(
-    private val label: String, private val value: String? = null
+    val label: String,
+    val value: String? = null
 )
 
 data class PipelineConfig(
     @Field("extract_binary_content")
-    private val extractBinaryContent: Boolean, // Whether or not the `request_pipeline` should handle binary data
-    private val name: String, //  Ingest pipeline to utilize on indexing data to Elasticsearch
+    val extractBinaryContent: Boolean, // Whether or not the `request_pipeline` should handle binary data
+    val name: String, //  Ingest pipeline to utilize on indexing data to Elasticsearch
     @Field("reduce_whitespace")
-    private val reduceWhitespace: Boolean, // Whether or not the `request_pipeline` should squish redundant whitespace
+    val reduceWhitespace: Boolean, // Whether or not the `request_pipeline` should squish redundant whitespace
     @Field("run_ml_inference")
-    private val runMlInference: Boolean // Whether or not the `request_pipeline` should run the ML Inference pipeline
+    val runMlInference: Boolean // Whether or not the `request_pipeline` should run the ML Inference pipeline
 )
 
 data class SchedulingConfig(
-    private val enabled: Boolean, // Is sync schedule enabled?
-    private val interval: String // Quartz Cron syntax
+    val enabled: Boolean, // Is sync schedule enabled?
+    val interval: String // Quartz Cron syntax
 )
+
+// const val DATE_FORMAT = "uuuu-MM-dd'T'HH:mm:ss.SSSZZ"
 
 @Document(indexName = ".elastic-connectors")
 data class ConnectorConfig(
@@ -36,23 +40,23 @@ data class ConnectorConfig(
     @Field("api_key_id")
     val apiKeyId: String? = null, // ID of the current API key in use
     // Definition and values of configurable
-    val configuration: Map<String, ConfigurationItem> = mutableMapOf(),
+    var configuration: Map<String, ConfigurationItem> = mutableMapOf(),
     var error: String? = null, //  Optional error message
     @Field("index_name")
     val indexName: String, // The index data will be written to
     val language: String? = null, // the language used for the analyzer
-    @Field("lastSeen")
-    val lastSeen: DateTime? = null, // Connector writes check-in date-time regularly (UTC)
+    @Field("last_seen", type = FieldType.Date)
+    var lastSeen: Date? = null, // Connector writes check-in date-time regularly (UTC)
     @Field("last_sync_error")
-    val lastSyncError: String? = null, // Optional last sync error message
+    var lastSyncError: String? = null, // Optional last sync error message
     @Field("last_sync_status")
-    val lastSyncStatus: LastSyncStatus? = null, // last sync Enum, see below
-    @Field("last_synced")
-    val lastSynced: DateTime? = null, // Date/time of last completed sync (UTC)
+    var lastSyncStatus: SyncStatus? = null, // last sync Enum, see below
+    @Field("last_synced", type = FieldType.Date)
+    var lastSynced: Date? = null, // Date/time of last completed sync (UTC)
     @Field("last_indexed_document_count")
-    val lastIndexedDocumentCount: Long? = null, // How many documents were inserted into the index
+    var lastIndexedDocumentCount: Long? = null, // How many documents were inserted into the index
     @Field("last_deleted_document_count")
-    val lastDeletedDocumentCount: Long? = null, // How many documents were deleted from the index
+    var lastDeletedDocumentCount: Long? = null, // How many documents were deleted from the index
     val name: String, // the name to use for the connector
     val pipeline: PipelineConfig? = null,
     val scheduling: SchedulingConfig? = null,
@@ -63,7 +67,15 @@ data class ConnectorConfig(
     val syncNow: Boolean = false, // Flag to signal user wants to initiate a sync
     @Field("is_native")
     val native: Boolean = false // Flag to signal a native connector
-)
+) {
+    fun isSyncing(): Boolean {
+        return lastSyncStatus != null && lastSyncStatus == SyncStatus.in_progress
+    }
+
+    fun isSyncEnabled(): Boolean {
+        return scheduling != null && scheduling.enabled
+    }
+}
 
 
 enum class ConnectorStatus {
@@ -74,7 +86,7 @@ enum class ConnectorStatus {
     error
 }
 
-enum class LastSyncStatus {
+enum class SyncStatus {
     in_progress, // sync successfully started
     completed, // sync successfully completed
     error // sync error

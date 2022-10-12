@@ -1,14 +1,18 @@
 package org.elasticsearch.ingestion.core
 
 import mu.KLogging
+import org.elasticsearch.ingestion.app.ConnectorProperties
+import org.elasticsearch.ingestion.connectors.ElasticConnectorService
 import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
 import org.elasticsearch.ingestion.connectors.data.ConnectorDocumentService
+import org.springframework.stereotype.Component
 
 interface Sink {
     fun ingest(document: ConnectorDocument)
     fun ingestMultiple(documents: List<ConnectorDocument>)
     fun delete(id: String)
     fun deleteMultiple(ids: List<String>)
+    fun flush() {}
 }
 
 class SinkException(message: String) : Exception(message) {
@@ -20,6 +24,7 @@ class SinkException(message: String) : Exception(message) {
 /**
  * This sink is used for testing purposes only
  */
+@Component("consoleSink")
 class ConsoleSink : Sink {
     override fun ingest(document: ConnectorDocument) {
         logger.info("Ingesting document: $document")
@@ -40,20 +45,38 @@ class ConsoleSink : Sink {
     companion object : KLogging()
 }
 
-class ElasticSink(private val indexName: String, private val service: ConnectorDocumentService) : Sink {
+@Component("elasticSink")
+class ElasticSink(
+    connectorProperties: ConnectorProperties,
+    connectorService: ElasticConnectorService,
+    private val documentService: ConnectorDocumentService
+) : Sink {
+    private var indexName: String? = null
+
+    init {
+        logger.info("Initializing ElasticSink...")
+        connectorService.findConnectorConfig(connectorProperties.id!!)?.let {
+            // TODO: need to reload index name periodically
+            // in case it's changed in the connector config
+            indexName = it.indexName
+        }
+    }
+
     override fun ingest(document: ConnectorDocument) {
-        service.indexDocument(indexName, document)
+        documentService.indexDocument(indexName!!, document)
     }
 
     override fun ingestMultiple(documents: List<ConnectorDocument>) {
-        service.indexDocuments(indexName, documents)
+        documentService.indexDocuments(indexName!!, documents)
     }
 
     override fun delete(id: String) {
-        service.deleteDocument(indexName, id)
+        documentService.deleteDocument(indexName!!, id)
     }
 
     override fun deleteMultiple(ids: List<String>) {
-        service.deleteDocuments(indexName, ids)
+        documentService.deleteDocuments(indexName!!, ids)
     }
+
+    companion object : KLogging()
 }

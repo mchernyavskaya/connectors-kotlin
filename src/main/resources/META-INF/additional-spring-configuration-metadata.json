@@ -9,6 +9,21 @@
       "name": "connector.id",
       "type": "java.lang.String",
       "description": "ID from the connector that is used to identify it."
+    },
+    {
+      "name": "metadata.version",
+      "type": "java.lang.String",
+      "description": "Description for metadata.version."
+    },
+    {
+      "name": "metadata.repository",
+      "type": "java.lang.String",
+      "description": "Description for metadata.repository."
+    },
+    {
+      "name": "metadata.revision",
+      "type": "java.lang.String",
+      "description": "Description for metadata.revision."
     }
   ]
 }
