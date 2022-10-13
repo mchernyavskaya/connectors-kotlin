@@ -3,7 +3,7 @@ package org.elasticsearch.ingestion.connectors.example
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.test.runTest
-import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
+import org.elasticsearch.ingestion.data.ConnectorConfig
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertDoesNotThrow
 import org.mockito.kotlin.mock

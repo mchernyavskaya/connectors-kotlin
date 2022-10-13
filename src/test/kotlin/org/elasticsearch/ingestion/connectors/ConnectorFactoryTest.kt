@@ -6,8 +6,10 @@ import io.mockk.mockkObject
 import io.mockk.unmockkObject
 import org.amshove.kluent.shouldBeEqualTo
 import org.amshove.kluent.shouldBeInstanceOf
-import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
+import org.elasticsearch.ingestion.data.ConnectorConfig
 import org.elasticsearch.ingestion.connectors.example.ExampleConnector
+import org.elasticsearch.ingestion.service.ConnectorFactory
+import org.elasticsearch.ingestion.service.Registry
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test

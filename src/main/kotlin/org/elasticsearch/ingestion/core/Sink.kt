@@ -2,9 +2,9 @@ package org.elasticsearch.ingestion.core
 
 import mu.KLogging
 import org.elasticsearch.ingestion.app.ConnectorProperties
-import org.elasticsearch.ingestion.connectors.ElasticConnectorService
-import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
-import org.elasticsearch.ingestion.connectors.data.ConnectorDocumentService
+import org.elasticsearch.ingestion.data.ConnectorDocument
+import org.elasticsearch.ingestion.service.ConnectorConfigService
+import org.elasticsearch.ingestion.service.ConnectorDocumentService
 import org.springframework.stereotype.Component
 
 interface Sink {
@@ -48,7 +48,7 @@ class ConsoleSink : Sink {
 @Component("elasticSink")
 class ElasticSink(
     connectorProperties: ConnectorProperties,
-    connectorService: ElasticConnectorService,
+    connectorService: ConnectorConfigService,
     private val documentService: ConnectorDocumentService
 ) : Sink {
     private var indexName: String? = null

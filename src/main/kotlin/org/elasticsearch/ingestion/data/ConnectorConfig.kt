@@ -1,11 +1,12 @@
 @file:Suppress("EnumEntryName")
 
-package org.elasticsearch.ingestion.connectors.data
+package org.elasticsearch.ingestion.data
 
 import org.springframework.data.annotation.Id
 import org.springframework.data.elasticsearch.annotations.Document
 import org.springframework.data.elasticsearch.annotations.Field
 import org.springframework.data.elasticsearch.annotations.FieldType
+import org.springframework.data.elasticsearch.annotations.WriteTypeHint
 import org.springframework.data.elasticsearch.repository.ElasticsearchRepository
 import java.util.*
 
@@ -31,9 +32,7 @@ data class SchedulingConfig(
     val interval: String // Quartz Cron syntax
 )
 
-// const val DATE_FORMAT = "uuuu-MM-dd'T'HH:mm:ss.SSSZZ"
-
-@Document(indexName = ".elastic-connectors")
+@Document(indexName = ".elastic-connectors", writeTypeHint = WriteTypeHint.FALSE)
 data class ConnectorConfig(
     @Id
     val id: String? = null, // for new records it is empty
@@ -53,18 +52,17 @@ data class ConnectorConfig(
     var lastSyncStatus: SyncStatus? = null, // last sync Enum, see below
     @Field("last_synced", type = FieldType.Date)
     var lastSynced: Date? = null, // Date/time of last completed sync (UTC)
-    @Field("last_indexed_document_count")
-    var lastIndexedDocumentCount: Long? = null, // How many documents were inserted into the index
-    @Field("last_deleted_document_count")
-    var lastDeletedDocumentCount: Long? = null, // How many documents were deleted from the index
     val name: String, // the name to use for the connector
-    val pipeline: PipelineConfig? = null,
     val scheduling: SchedulingConfig? = null,
     @Field("service_type")
     var serviceType: String? = null, // Used to map to the correct service
     var status: ConnectorStatus, // Enum, see below
     @Field("sync_now")
-    val syncNow: Boolean = false, // Flag to signal user wants to initiate a sync
+    var syncNow: Boolean = false, // Flag to signal user wants to initiate a sync
+    @Field("last_indexed_document_count")
+    var lastIndexedDocumentCount: Long? = null, // How many documents were inserted into the index
+    @Field("last_deleted_document_count")
+    var lastDeletedDocumentCount: Long? = null, // How many documents were deleted from the index
     @Field("is_native")
     val native: Boolean = false // Flag to signal a native connector
 ) {
@@ -72,11 +70,14 @@ data class ConnectorConfig(
         return lastSyncStatus != null && lastSyncStatus == SyncStatus.in_progress
     }
 
+    fun lastSyncFailed(): Boolean {
+        return lastSyncStatus != null && lastSyncStatus == SyncStatus.error
+    }
+
     fun isSyncEnabled(): Boolean {
-        return scheduling != null && scheduling.enabled
+        return scheduling != null && scheduling!!.enabled
     }
 }
-
 
 enum class ConnectorStatus {
     created, // entry has been created but connector has not connected to elasticsearch (written by index creator)

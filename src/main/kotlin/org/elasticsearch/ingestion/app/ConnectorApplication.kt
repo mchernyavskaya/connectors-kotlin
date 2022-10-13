@@ -1,8 +1,8 @@
 package org.elasticsearch.ingestion.app
 
 import mu.KLogging
-import org.elasticsearch.ingestion.connectors.ElasticConnectorService
-import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
+import org.elasticsearch.ingestion.service.ConnectorConfigService
+import org.elasticsearch.ingestion.data.ConnectorConfig
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -20,7 +20,7 @@ import org.springframework.data.elasticsearch.repository.config.EnableElasticsea
     ElasticClientProperties::class
 )
 class ConnectorApplication(
-    private val service: ElasticConnectorService,
+    private val service: ConnectorConfigService,
     private val properties: ConnectorProperties,
     private val jobRunner: ConnectorJobRunner
 ) {

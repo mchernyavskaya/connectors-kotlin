@@ -1,11 +1,11 @@
-package org.elasticsearch.ingestion.connectors
+package org.elasticsearch.ingestion.service
 
 import com.googlecode.catchexception.CatchException.catchException
 import com.googlecode.catchexception.CatchException.caughtException
 import io.mockk.mockk
-import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
-import org.elasticsearch.ingestion.connectors.data.ConnectorRepository
-import org.elasticsearch.ingestion.connectors.data.ConnectorStatus
+import org.elasticsearch.ingestion.data.ConnectorConfig
+import org.elasticsearch.ingestion.data.ConnectorRepository
+import org.elasticsearch.ingestion.data.ConnectorStatus
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
@@ -14,9 +14,9 @@ import java.util.*
 import kotlin.test.assertEquals
 import kotlin.test.assertNull
 
-internal class ElasticConnectorServiceTest {
+internal class ConnectorConfigServiceTest {
     private val repo = mock(ConnectorRepository::class.java)
-    private val service = ElasticConnectorService(repo)
+    private val service = ConnectorConfigService(repo)
     private val connectorId = "someId"
     private val initialConnectorConfig = ConnectorConfig(
         id = connectorId,

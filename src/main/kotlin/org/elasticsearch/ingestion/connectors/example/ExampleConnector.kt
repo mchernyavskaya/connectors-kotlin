@@ -4,8 +4,9 @@ import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.flow
 import org.elasticsearch.ingestion.connectors.base.ConfigurableField
 import org.elasticsearch.ingestion.connectors.base.Connector
-import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
-import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
+import org.elasticsearch.ingestion.data.ConnectorConfig
+import org.elasticsearch.ingestion.data.ConnectorDocument
+import java.util.*
 
 class ExampleConnector(configuration: ConnectorConfig) : Connector(configuration) {
     override fun displayName(): String {
@@ -43,6 +44,6 @@ class ExampleConnector(configuration: ConnectorConfig) : Connector(configuration
         "Example Document $index",
         "$index - This is an example document. Treat it as such.",
         "https://example.com/${index}",
-        0
+        Date()
     )
 }

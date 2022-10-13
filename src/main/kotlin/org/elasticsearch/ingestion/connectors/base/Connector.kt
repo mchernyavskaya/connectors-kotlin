@@ -2,11 +2,11 @@ package org.elasticsearch.ingestion.connectors.base
 
 import kotlinx.coroutines.flow.Flow
 import mu.KLogging
-import org.elasticsearch.ingestion.connectors.ConnectorException
-import org.elasticsearch.ingestion.connectors.HealthCheckException
-import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
-import org.elasticsearch.ingestion.connectors.data.ConnectorDocument
-import org.elasticsearch.ingestion.connectors.data.ConnectorStatus
+import org.elasticsearch.ingestion.data.ConnectorConfig
+import org.elasticsearch.ingestion.data.ConnectorDocument
+import org.elasticsearch.ingestion.data.ConnectorStatus
+import org.elasticsearch.ingestion.service.ConnectorException
+import org.elasticsearch.ingestion.service.HealthCheckException
 import org.joda.time.DateTime
 import org.quartz.CronExpression
 import java.util.*
@@ -37,11 +37,13 @@ abstract class Connector(private val configuration: ConnectorConfig) {
 
     fun id() = configuration.id
 
+    fun indexName() = configuration.indexName
+
     fun shouldSync(): Boolean {
         if (configuration.isSyncing() || !configuration.isSyncEnabled()) {
             return false
         }
-        if (configuration.syncNow) {
+        if (configuration.syncNow || configuration.lastSyncFailed()) {
             return true
         }
         val exp = CronExpression(configuration.scheduling?.interval)

@@ -1,7 +1,7 @@
-package org.elasticsearch.ingestion.connectors
+package org.elasticsearch.ingestion.service
 
 import org.elasticsearch.ingestion.connectors.base.Connector
-import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
+import org.elasticsearch.ingestion.data.ConnectorConfig
 import org.springframework.stereotype.Component
 
 @Suppress("UNCHECKED_CAST")

@@ -1,0 +1,53 @@
+{
+  "dynamic": "true",
+  "dynamic_templates": [
+    {
+      "data": {
+        "match_mapping_type": "string",
+        "mapping": {
+          "analyzer": "iq_text_base",
+          "fields": {
+            "prefix": {
+              "search_analyzer": "q_prefix",
+              "analyzer": "i_prefix",
+              "type": "text",
+              "index_options": "docs"
+            },
+            "delimiter": {
+              "analyzer": "iq_text_delimiter",
+              "type": "text",
+              "index_options": "freqs"
+            },
+            "joined": {
+              "search_analyzer": "q_text_bigram",
+              "analyzer": "i_text_bigram",
+              "type": "text",
+              "index_options": "freqs"
+            },
+            "enum": {
+              "ignore_above": 2048,
+              "type": "keyword"
+            },
+            "stem": {
+              "analyzer": "iq_text_stem",
+              "type": "text"
+            }
+          },
+          "index_options": "freqs",
+          "type": "text"
+        }
+      }
+    }
+  ],
+  "properties": {
+    "_subextracted_as_of": {
+      "type": "date"
+    },
+    "_subextracted_version": {
+      "type": "keyword"
+    },
+    "id": {
+      "type": "keyword"
+    }
+  }
+}

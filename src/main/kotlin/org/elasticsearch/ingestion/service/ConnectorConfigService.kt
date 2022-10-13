@@ -1,15 +1,12 @@
-package org.elasticsearch.ingestion.connectors
+package org.elasticsearch.ingestion.service
 
 import org.elasticsearch.ingestion.connectors.base.ConfigurableField
-import org.elasticsearch.ingestion.connectors.data.ConfigurationItem
-import org.elasticsearch.ingestion.connectors.data.ConnectorConfig
-import org.elasticsearch.ingestion.connectors.data.ConnectorRepository
-import org.elasticsearch.ingestion.connectors.data.ConnectorStatus
+import org.elasticsearch.ingestion.data.*
 import org.springframework.stereotype.Service
 import java.util.*
 
 @Service
-class ElasticConnectorService(private val repository: ConnectorRepository) {
+class ConnectorConfigService(private val repository: ConnectorRepository) {
     fun connectorConfiguration(id: String): ConnectorConfig? {
         return repository.findById(id).orElse(null)
     }
@@ -46,6 +43,29 @@ class ElasticConnectorService(private val repository: ConnectorRepository) {
         configurableFields.find { it.defaultValue == null }?.let {
             connector.status = ConnectorStatus.needs_configuration
         }
+        return repository.save(connector)
+    }
+
+    fun markConnectorSyncStarted(id: String): ConnectorConfig {
+        val connector = repository.findById(id).get()
+        connector.syncNow = false
+        connector.lastSynced = Date()
+        connector.lastSyncStatus = SyncStatus.in_progress
+        return repository.save(connector)
+    }
+
+    fun markConnectorSyncCompleted(
+        id: String,
+        status: SyncStatus,
+        indexedCount: Long = 0,
+        deletedCount: Long = 0,
+        errorMessage: String? = null
+    ): ConnectorConfig {
+        val connector = repository.findById(id).get()
+        connector.lastSyncStatus = status
+        connector.lastSyncError = errorMessage
+        connector.lastIndexedDocumentCount = indexedCount
+        connector.lastDeletedDocumentCount = deletedCount
         return repository.save(connector)
     }
 

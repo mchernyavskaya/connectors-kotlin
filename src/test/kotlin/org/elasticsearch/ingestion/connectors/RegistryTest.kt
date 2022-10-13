@@ -2,6 +2,7 @@ package org.elasticsearch.ingestion.connectors
 
 import org.amshove.kluent.internal.assertFailsWith
 import org.elasticsearch.ingestion.connectors.example.ExampleConnector
+import org.elasticsearch.ingestion.service.Registry
 import org.junit.jupiter.api.Test
 import kotlin.test.assertEquals
 
