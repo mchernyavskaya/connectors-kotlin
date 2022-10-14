@@ -66,6 +66,8 @@ class ConnectorConfigService(private val repository: ConnectorRepository) {
         connector.lastSyncError = errorMessage
         connector.lastIndexedDocumentCount = indexedCount
         connector.lastDeletedDocumentCount = deletedCount
+        connector.status = if (status == SyncStatus.error) ConnectorStatus.error else ConnectorStatus.configured
+        connector.error = errorMessage
         return repository.save(connector)
     }
 

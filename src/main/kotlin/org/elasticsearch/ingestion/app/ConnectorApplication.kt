@@ -1,8 +1,8 @@
 package org.elasticsearch.ingestion.app
 
 import mu.KLogging
-import org.elasticsearch.ingestion.service.ConnectorConfigService
 import org.elasticsearch.ingestion.data.ConnectorConfig
+import org.elasticsearch.ingestion.service.ConnectorConfigService
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.boot.context.properties.EnableConfigurationProperties
@@ -47,8 +47,7 @@ class ConnectorApplication(
             }
             logger.info { "Connector ${properties.id} is not associated with a service type. Updating service type to ${properties.serviceType}" }
             service.updateConnectorServiceType(connectorConfig.id!!, properties.serviceType)
-        }
-        if (connectorConfig.serviceType != properties.serviceType) {
+        } else if (connectorConfig.serviceType != properties.serviceType) {
             throw IllegalArgumentException("Connector ${properties.id} is associated with service type ${connectorConfig.serviceType} but the service type is set to ${properties.serviceType}")
         }
     }

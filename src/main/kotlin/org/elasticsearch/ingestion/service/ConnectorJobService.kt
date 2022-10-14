@@ -10,7 +10,7 @@ import java.util.*
 @Service
 class ConnectorJobService(
     private val jobRepository: ConnectorJobRepository,
-    private val connectorConfigService: ConnectorConfigService
+    private val configService: ConnectorConfigService
 ) {
     fun findCurrentJob(connectorId: String): ConnectorJob? {
         return jobRepository.findByConnectorIdAndStatus(connectorId, SyncStatus.in_progress)
@@ -21,7 +21,7 @@ class ConnectorJobService(
         if (existingJob != null) {
             throw SyncJobAlreadyRunningException(connectorId, existingJob.id!!)
         }
-        val connectorConfig = connectorConfigService.markConnectorSyncStarted(connectorId)
+        val connectorConfig = configService.markConnectorSyncStarted(connectorId)
         val job = ConnectorJob(
             connectorId = connectorId,
             status = SyncStatus.in_progress,
@@ -34,7 +34,7 @@ class ConnectorJobService(
 
     fun completeJob(job: ConnectorJob, indexedCount: Long = 0, deletedCount: Long = 0, errorMessage: String? = null) {
         val status = if (errorMessage != null) SyncStatus.error else SyncStatus.completed
-        val connectorConfig = connectorConfigService.markConnectorSyncCompleted(
+        val connectorConfig = configService.markConnectorSyncCompleted(
             job.connectorId!!,
             status,
             indexedCount,

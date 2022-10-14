@@ -3,6 +3,8 @@ package org.elasticsearch.ingestion.app
 import co.elastic.clients.json.jackson.JacksonJsonpMapper
 import co.elastic.clients.transport.ElasticsearchTransport
 import co.elastic.clients.transport.rest_client.RestClientTransport
+import com.fasterxml.jackson.databind.ObjectMapper
+import com.fasterxml.jackson.module.kotlin.kotlinModule
 import org.apache.http.HttpHost
 import org.apache.http.auth.AuthScope
 import org.apache.http.auth.UsernamePasswordCredentials
@@ -33,7 +35,7 @@ class DirectClientConfiguration(val properties: ElasticClientProperties) {
                 builder.setDefaultCredentialsProvider(credentialsProvider)
             }.build()
         val transport: ElasticsearchTransport = RestClientTransport(
-            restClient, JacksonJsonpMapper()
+            restClient, JacksonJsonpMapper(ObjectMapper().registerModule(kotlinModule()))
         )
         // And create the API client
         return AutoCloseableElasticsearchClient(transport)

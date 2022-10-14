@@ -15,16 +15,21 @@ class ConnectorDocumentService(private val elasticClient: ElasticsearchClient) {
     fun indexDocument(indexName: String, document: ConnectorDocument) {
         elasticClient.index {
             it.index(indexName)
+            it.id(document.id)
             it.document(document)
         }
     }
 
     fun indexDocuments(indexName: String, documents: List<ConnectorDocument>) {
+        if (documents.isEmpty()) {
+            return
+        }
         val requestBuilder = BulkRequest.Builder().index(indexName)
         documents.forEach { document ->
             requestBuilder.operations { op ->
                 op.index {
                     it.document(document)
+                    it.id(document.id)
                 }
             }
         }
@@ -39,6 +44,9 @@ class ConnectorDocumentService(private val elasticClient: ElasticsearchClient) {
     }
 
     fun deleteDocuments(indexName: String, ids: List<String>) {
+        if (ids.isEmpty()) {
+            return
+        }
         val requestBuilder = BulkRequest.Builder().index(indexName)
         ids.forEach { id ->
             requestBuilder.operations { op ->
@@ -53,25 +61,17 @@ class ConnectorDocumentService(private val elasticClient: ElasticsearchClient) {
     fun getDocumentIds(indexName: String): List<String> {
         val pageSize = 1000
         val result = mutableListOf<String>()
-        val requestBuilder = SearchRequest.Builder()
-            .size(pageSize)
-            .sort { sort ->
-                sort.field(FieldSort.of {
-                    it.field("id")
-                    it.order(SortOrder.Asc)
-                })
-            }
         val opResponse = elasticClient.openPointInTime {
             it.index(indexName)
             it.keepAlive(Time.of { t -> t.time("1m") })
         }
         try {
-            var searchRequest = requestBuilder.pit { pit -> pit.id(opResponse.id()) }.build()
+            var searchRequest = createScrollIdsRequest(opResponse.id())
             var searchResponse = elasticClient.search(searchRequest, ConnectorDocument::class.java)
             var hits = searchResponse.hits()?.hits()
             while (hits != null && hits.isNotEmpty()) {
                 result.addAll(hits.map { hit -> hit.id() })
-                searchRequest = requestBuilder.searchAfter(hits.last().sort()).build()
+                searchRequest = createScrollIdsRequest(opResponse.id(), hits.last().sort())
                 searchResponse = elasticClient.search(searchRequest, ConnectorDocument::class.java)
                 hits = searchResponse.hits()?.hits()
             }
@@ -87,7 +87,7 @@ class ConnectorDocumentService(private val elasticClient: ElasticsearchClient) {
         elasticClient.indices().getMapping { it.index(indexName) }.also { mappingResponse ->
             if (mappingResponse[indexName]?.mappings()?.properties()?.isEmpty() != false) {
                 logger.info("Creating mappings for index $indexName...")
-                this.javaClass.getResource("/content_index_mappings.json")?.openStream().use { stream ->
+                this.javaClass.getResource("/content-index-mapping.json")?.openStream().use { stream ->
                     elasticClient.indices().putMapping {
                         it.index(indexName)
                         it.withJson(stream)
@@ -97,6 +97,23 @@ class ConnectorDocumentService(private val elasticClient: ElasticsearchClient) {
                 logger.info("Index $indexName mappings already exist: ${mappingResponse.result()}")
             }
         }
+    }
+
+    private fun createScrollIdsRequest(pitId: String, searchAfter: List<String>? = null): SearchRequest {
+        val pageSize = 1000
+        val builder = SearchRequest.Builder()
+            .size(pageSize)
+            .sort { sort ->
+                sort.field(FieldSort.of {
+                    it.field("id")
+                    it.order(SortOrder.Asc)
+                })
+            }
+            .pit { pit -> pit.id(pitId) }
+        if (searchAfter != null) {
+            builder.searchAfter(searchAfter)
+        }
+        return builder.build()
     }
 
     companion object : KLogging()

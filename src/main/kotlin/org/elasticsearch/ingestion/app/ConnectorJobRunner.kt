@@ -20,7 +20,7 @@ class ConnectorJobRunner(
     private val connectorService: ConnectorConfigService,
     private val connectorJobService: ConnectorJobService,
     private val documentService: ConnectorDocumentService,
-    @Qualifier("consoleSink") // TODO change to elastic sink
+    @Qualifier("elasticSink")
     private val sink: Sink
 ) {
     private var stopped: Boolean = false
