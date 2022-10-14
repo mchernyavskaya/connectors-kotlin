@@ -3,9 +3,15 @@ package org.elasticsearch.ingestion.service
 import com.googlecode.catchexception.CatchException.catchException
 import com.googlecode.catchexception.CatchException.caughtException
 import io.mockk.mockk
+import org.amshove.kluent.shouldBeEqualTo
+import org.amshove.kluent.shouldBeFalse
+import org.amshove.kluent.shouldBeNull
+import org.amshove.kluent.shouldNotBeNull
+import org.elasticsearch.ingestion.connectors.base.ConfigurableField
 import org.elasticsearch.ingestion.data.ConnectorConfig
 import org.elasticsearch.ingestion.data.ConnectorRepository
 import org.elasticsearch.ingestion.data.ConnectorStatus
+import org.elasticsearch.ingestion.data.SyncStatus
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentCaptor
@@ -82,4 +88,105 @@ internal class ConnectorConfigServiceTest {
         verify(repo).findById(eq(connectorId))
     }
 
+    @Test
+    fun `when configuration has all defaults connector becomes configured`() {
+        val configurableFields = listOf(
+            ConfigurableField("label1", "name1", "value1"),
+            ConfigurableField("label2", "name2", "value2")
+        )
+        ArgumentCaptor.forClass(ConnectorConfig::class.java).apply {
+            service.updateConnectorConfiguration(connectorId, configurableFields)
+            verify(repo).save(capture())
+            value.configuration.size shouldBeEqualTo 2
+            value.configuration.forEach {
+                val cf = configurableFields.find { field -> field.name == it.key }
+                it.value.value shouldBeEqualTo cf?.defaultValue
+                it.value.label shouldBeEqualTo cf?.label
+            }
+            value.status shouldBeEqualTo ConnectorStatus.configured
+        }
+    }
+
+    @Test
+    fun `when configuration has not all defaults connector needs configuration`() {
+        val configurableFields = listOf(
+            ConfigurableField("label1", "name1", "value1"),
+            ConfigurableField("label2", "name2", null)
+        )
+        ArgumentCaptor.forClass(ConnectorConfig::class.java).apply {
+            service.updateConnectorConfiguration(connectorId, configurableFields)
+            verify(repo).save(capture())
+            value.configuration.size shouldBeEqualTo 2
+            value.configuration.forEach {
+                val cf = configurableFields.find { field -> field.name == it.key }
+                if (cf?.defaultValue != null) {
+                    it.value.value shouldBeEqualTo cf.defaultValue
+                } else {
+                    it.value.value.shouldBeNull()
+                }
+                it.value.label shouldBeEqualTo cf?.label
+            }
+            value.status shouldBeEqualTo ConnectorStatus.needs_configuration
+        }
+    }
+
+    @Test
+    fun `when sync marked started the connector status is updated`() {
+        ArgumentCaptor.forClass(ConnectorConfig::class.java).apply {
+            service.markConnectorSyncStarted(connectorId)
+            verify(repo).save(capture())
+            value.lastSyncStatus shouldBeEqualTo SyncStatus.in_progress
+            value.lastSynced.shouldNotBeNull()
+            value.syncNow.shouldBeFalse()
+        }
+    }
+
+    @Test
+    fun `when sync marked successful the connector has proper status`() {
+        ArgumentCaptor.forClass(ConnectorConfig::class.java).apply {
+            service.markConnectorSyncCompleted(connectorId, SyncStatus.completed)
+            verify(repo).save(capture())
+            value.lastSyncStatus shouldBeEqualTo SyncStatus.completed
+            value.lastSyncError.shouldBeNull()
+            value.lastIndexedDocumentCount shouldBeEqualTo 0
+            value.lastDeletedDocumentCount shouldBeEqualTo 0
+            value.status shouldBeEqualTo ConnectorStatus.connected
+            value.error.shouldBeNull()
+        }
+    }
+
+    @Test
+    fun `when sync marked successful with counts they are passed`() {
+        ArgumentCaptor.forClass(ConnectorConfig::class.java).apply {
+            service.markConnectorSyncCompleted(connectorId, SyncStatus.completed, 10, 5)
+            verify(repo).save(capture())
+            value.lastIndexedDocumentCount shouldBeEqualTo 10
+            value.lastDeletedDocumentCount shouldBeEqualTo 5
+        }
+    }
+
+    @Test
+    fun `when sync marked failed the connector has proper status and error`() {
+        val error = "some error"
+        ArgumentCaptor.forClass(ConnectorConfig::class.java).apply {
+            service.markConnectorSyncCompleted(connectorId, SyncStatus.error, 0, 0, error)
+            verify(repo).save(capture())
+            value.lastSyncStatus shouldBeEqualTo SyncStatus.error
+            value.lastSyncError shouldBeEqualTo error
+            value.lastIndexedDocumentCount shouldBeEqualTo 0
+            value.lastDeletedDocumentCount shouldBeEqualTo 0
+            value.status shouldBeEqualTo ConnectorStatus.error
+            value.error shouldBeEqualTo error
+        }
+    }
+
+    @Test
+    fun `when service type is updated it is passed on`() {
+        val serviceType = "some service type"
+        ArgumentCaptor.forClass(ConnectorConfig::class.java).apply {
+            service.updateConnectorServiceType(connectorId, serviceType)
+            verify(repo).save(capture())
+            value.serviceType shouldBeEqualTo serviceType
+        }
+    }
 }

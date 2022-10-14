@@ -26,6 +26,25 @@ class ConnectorConfigService(private val repository: ConnectorRepository) {
         return repository.save(connector)
     }
 
+    /***
+     * Updates connector last_seen and optionally also the status.
+     * Status is updated only if the connector is in syncable state
+     */
+    fun heartbeat(id: String, errorMessage: String? = null): ConnectorConfig {
+        val connector = repository.findById(id).get()
+        connector.lastSeen = Date()
+        if (connector.statusAllowsSync()) {
+            if (errorMessage != null) {
+                connector.error = errorMessage
+                connector.status = ConnectorStatus.error
+            } else {
+                connector.error = null
+                connector.status = ConnectorStatus.connected
+            }
+        }
+        return repository.save(connector)
+    }
+
     fun updateConnectorServiceType(id: String, serviceType: String): ConnectorConfig {
         val connector = repository.findById(id).get()
         connector.serviceType = serviceType
@@ -35,7 +54,7 @@ class ConnectorConfigService(private val repository: ConnectorRepository) {
     fun updateConnectorConfiguration(id: String, configurableFields: List<ConfigurableField>): ConnectorConfig {
         val connector = repository.findById(id).get()
         connector.configuration = configurableFields.associate {
-            it.name to ConfigurationItem(it.label, "${it.defaultValue}")
+            it.name to ConfigurationItem(it.label, if (it.defaultValue == null) null else "${it.defaultValue}")
         }
         connector.status = ConnectorStatus.configured
         connector.lastSeen = Date()
@@ -66,7 +85,7 @@ class ConnectorConfigService(private val repository: ConnectorRepository) {
         connector.lastSyncError = errorMessage
         connector.lastIndexedDocumentCount = indexedCount
         connector.lastDeletedDocumentCount = deletedCount
-        connector.status = if (status == SyncStatus.error) ConnectorStatus.error else ConnectorStatus.configured
+        connector.status = if (status == SyncStatus.error) ConnectorStatus.error else ConnectorStatus.connected
         connector.error = errorMessage
         return repository.save(connector)
     }

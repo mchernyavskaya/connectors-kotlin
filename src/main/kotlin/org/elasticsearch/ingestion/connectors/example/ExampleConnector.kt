@@ -25,7 +25,7 @@ class ExampleConnector(configuration: ConnectorConfig) : Connector(configuration
 
     override fun fetchDocuments(): Flow<ConnectorDocument> {
         return flow {
-            1.rangeTo(10).forEach {
+            5.rangeTo(15).forEach {
                 emit(createStubDocument(it))
             }
         }

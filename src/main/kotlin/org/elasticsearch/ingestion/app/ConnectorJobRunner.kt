@@ -32,15 +32,20 @@ class ConnectorJobRunner(
                 connectorService.findConnectorConfig(connectorProperties.id!!)?.let { config ->
                     logger.info("Current connector status is [${config.status}]")
                     val connector = connectorFactory.createConnector(config)
+
                     if (connector.shouldConfigure()) {
                         logger.info("Connector ${config.id} is not configured. Configuring...")
-                        connectorService.updateConnectorConfiguration(config.id!!, connector.configurableFields())
+                        ConfigurationJob(connector, connectorService).run()
                     }
+
+                    if (connector.shouldHeartbeat(runnerProperties.heartbeatInterval)) {
+                        logger.info("Sending heartbeat for connector [${config.id}]...")
+                        HeartbeatJob(connector, connectorService).run()
+                    }
+
                     if (connector.shouldSync()) {
                         logger.info("Running sync for connector: ${connector.id()}")
                         SyncJob(connector, sink, connectorJobService, documentService).run()
-                    } else {
-                        logger.info("Skipping sync for connector: ${connector.id()} (either not enabled or not time to sync)")
                     }
                 }
             } catch (e: Exception) {
@@ -63,11 +68,11 @@ class ConnectorJobRunner(
 class SyncJob(
     private val connector: Connector,
     private val sink: Sink,
-    private val connectorJobService: ConnectorJobService,
+    private val jobService: ConnectorJobService,
     private val documentService: ConnectorDocumentService
 ) {
     fun run() = runBlocking {
-        val job = connectorJobService.claimJob(connector.id()!!)
+        val job = jobService.claimJob(connector.id()!!)
         val deletedIds = mutableSetOf<String>()
         val indexedIds = mutableSetOf<String>()
         launch(Dispatchers.Default) {
@@ -88,7 +93,7 @@ class SyncJob(
             } else {
                 logger.error("Error syncing connector [${connector.id()}]", e)
             }
-            connectorJobService.completeJob(job!!, indexedIds.size.toLong(), deletedIds.size.toLong(), e?.message)
+            jobService.completeJob(job!!, indexedIds.size.toLong(), deletedIds.size.toLong(), e?.message)
             sink.flush()
         }
     }
@@ -96,12 +101,34 @@ class SyncJob(
     companion object : KLogging()
 }
 
-class ConfigurationJob(private val connector: Connector, private val service: ConnectorConfigService) {
+class ConfigurationJob(private val connector: Connector, private val configService: ConnectorConfigService) {
     fun run() = runBlocking {
         launch(Dispatchers.Default) {
+            configService.updateConnectorConfiguration(connector.id()!!, connector.configurableFields())
+        }.invokeOnCompletion { e ->
+            if (e == null) {
+                logger.info("Finished configuring connector [${connector.id()}]")
+            } else {
+                logger.error("Error configuring connector [${connector.id()}]", e)
+                configService.updateConnectorStatus(connector.id()!!, ConnectorStatus.error, e.message)
+            }
+        }
+    }
 
-        }.invokeOnCompletion {
-            logger.info("Finished configuring connector ${connector.id()}.")
+    companion object : KLogging()
+}
+
+class HeartbeatJob(private val connector: Connector, private val configService: ConnectorConfigService) {
+    fun run() = runBlocking {
+        launch(Dispatchers.Default) {
+            connector.doHealthCheckAndRaise()
+        }.invokeOnCompletion { e ->
+            if (e == null) {
+                logger.info("Connector heartbeat [${connector.id()}] is OK")
+            } else {
+                logger.error("Connector heartbeat [${connector.id()}] is in error state", e)
+            }
+            configService.heartbeat(connector.id()!!, e?.message)
         }
     }
 

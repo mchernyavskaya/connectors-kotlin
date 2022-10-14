@@ -77,6 +77,10 @@ data class ConnectorConfig(
     fun isSyncEnabled(): Boolean {
         return scheduling != null && scheduling!!.enabled
     }
+
+    fun statusAllowsSync(): Boolean {
+        return status in listOf(ConnectorStatus.error, ConnectorStatus.connected, ConnectorStatus.configured)
+    }
 }
 
 enum class ConnectorStatus {

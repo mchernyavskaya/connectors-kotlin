@@ -9,6 +9,7 @@ import org.elasticsearch.ingestion.service.ConnectorException
 import org.elasticsearch.ingestion.service.HealthCheckException
 import org.joda.time.DateTime
 import org.quartz.CronExpression
+import java.time.Instant
 import java.util.*
 
 // we want this to have a type field later
@@ -39,6 +40,8 @@ abstract class Connector(private val configuration: ConnectorConfig) {
 
     fun indexName() = configuration.indexName
 
+    fun lastSeen() = configuration.lastSeen
+
     fun shouldSync(): Boolean {
         if (configuration.isSyncing() || !configuration.isSyncEnabled()) {
             return false
@@ -55,6 +58,14 @@ abstract class Connector(private val configuration: ConnectorConfig) {
     fun shouldConfigure(): Boolean {
         // TODO make this on par with connectors-ruby
         return configuration.status == ConnectorStatus.created
+    }
+
+    fun shouldHeartbeat(heartbeatInterval: Long): Boolean {
+        if (!configuration.statusAllowsSync()) {
+            return false
+        }
+        return configuration.lastSynced == null ||
+                configuration.lastSynced!!.toInstant().plusMillis(heartbeatInterval).isBefore(Instant.now())
     }
 
     fun doHealthCheckAndRaise() {
