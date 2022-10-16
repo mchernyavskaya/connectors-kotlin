@@ -34,11 +34,11 @@ internal class ExampleConnectorTest {
     @Test
     fun fetchDocuments(): Unit = runTest {
         val documents = exampleConnector.fetchDocuments().toList(mutableListOf())
-        assert(documents.size == 10)
-        assert(documents[0].id == "1")
-        assert(documents[0].title == "Example Document 1")
-        assert(documents[0].content == "1 - This is an example document. Treat it as such.")
-        assert(documents[0].url == "https://example.com/1")
+        assert(documents.size == 11)
+        assert(documents[0].id == "5")
+        assert(documents[0].title == "Example Document 5")
+        assert(documents[0].content == "5 - This is an example document. Treat it as such.")
+        assert(documents[0].url == "https://example.com/5")
     }
 
     @Test

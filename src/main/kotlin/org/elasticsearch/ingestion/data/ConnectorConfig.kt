@@ -75,7 +75,7 @@ data class ConnectorConfig(
     }
 
     fun isSyncEnabled(): Boolean {
-        return scheduling != null && scheduling!!.enabled
+        return scheduling != null && scheduling.enabled
     }
 
     fun statusAllowsSync(): Boolean {

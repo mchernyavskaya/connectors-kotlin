@@ -1,11 +1,14 @@
 import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
+import org.springframework.boot.gradle.tasks.bundling.BootJar
 
 val kotlinVersion = "1.7.20"
+var projectAlias = "konnectors"
 
 plugins {
     val springBootVersion = "2.7.4"
     val kotlinVersion = "1.7.20"
     kotlin("jvm") version kotlinVersion
+    kotlin("kapt") version kotlinVersion
     kotlin("plugin.spring") version kotlinVersion
     id("org.springframework.boot") version springBootVersion
     id("io.spring.dependency-management") version "1.0.14.RELEASE"
@@ -80,4 +83,13 @@ tasks.withType<KotlinCompile> {
 
 tasks.withType<Test> {
     useJUnitPlatform()
+}
+
+tasks.named<BootJar>("bootJar") {
+    mainClass.set("org.elasticsearch.ingestion.app.ConnectorApplicationKt")
+    archiveFileName.set("${projectAlias}.jar")
+}
+
+tasks.named<Jar>("jar") {
+    enabled = false
 }

@@ -25,7 +25,7 @@ class ConnectorJobRunner(
 ) {
     private var stopped: Boolean = false
 
-    fun runLoop() {
+    fun runLoop() = runBlocking(Dispatchers.IO) {
         logger.info("Starting job runner loop...")
         while (!stopped) {
             try {
@@ -59,6 +59,7 @@ class ConnectorJobRunner(
     }
 
     fun stop() {
+        // TODO when do we want to do this?
         stopped = true
     }
 

@@ -59,7 +59,6 @@ class ConnectorDocumentService(private val elasticClient: ElasticsearchClient) {
     }
 
     fun getDocumentIds(indexName: String): List<String> {
-        val pageSize = 1000
         val result = mutableListOf<String>()
         val opResponse = elasticClient.openPointInTime {
             it.index(indexName)
