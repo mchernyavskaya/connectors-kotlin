@@ -5,6 +5,11 @@ Elastic Enterprise Search native connectors, or writing your own connectors for 
 
 **The connectors will be operated by an administrative user from within Kibana.**
 
+## Other Connector Clients frameworks
+
+- [connectors-ruby](https://github.com/elastic/connectors-ruby)
+- [connectors-python](https://github.com/elastic/connectors-python)
+
 ## Getting started
 
 There are two ways to run the application: with or without Docker. The Docker way is the easiest way to get started.
