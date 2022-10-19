@@ -1,0 +1,27 @@
+# general metadata
+metadata:
+  version: "8.5.0.0"
+  repository: "git@github.com:mchernyavskaya/connectors-kotlin.git"
+  revision: "CHANGEME"
+
+spring:
+  elasticsearch:
+    username: elastic
+    password: changeme
+    uris: localhost:9200
+# use this to set a different active profile - e.g. "dev" or "prod"
+# you will need a corresponding application-<profile>.yml file
+  profiles:
+    active: dev
+
+server:
+  port: 8088
+
+runner:
+  pollingInterval: 10000
+  heartbeatInterval: 180000
+  terminationTimeout: 60000
+
+connector:
+  id: "CHANGEME"
+  service_type: "exampleKotlin"

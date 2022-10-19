@@ -1,4 +1,5 @@
-# general metadata
+# NOTE: profile-specific files can override only selected settings, they don't have
+# to contain everything from the default application.yml
 metadata:
   version: "8.5.0.0"
   repository: "git@github.com:mchernyavskaya/connectors-kotlin.git"
